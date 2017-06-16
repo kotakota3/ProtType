@@ -66,13 +66,13 @@ public class PlayerMovement : MonoBehaviour
 	void Dead ()
 	{
 		_isDead = true;
-		SoundManager.instance.PlaySingle (deadClip);
+		SoundManager.instance.PlaySE (deadClip);
 		gameController.GameOver ();
 	}
 
 	void OnTriggerEnter (Collider other)
 	{
-		//肉壁機能
+		//肉壁機能呼び出し
 		if (other.CompareTag ("EnemyCollider"))
 		{
 			List<FollowerMovement> canRescueList = new List<FollowerMovement> ();
@@ -89,19 +89,26 @@ public class PlayerMovement : MonoBehaviour
 			canRescueList [randomIndex].isRescue = true;
 			_rescuePos = (transform.position + other.transform.position) * 0.5f;
 		}
-
 		//被弾処理
-		else if (other.gameObject.CompareTag ("Enemy"))
+		if (other.CompareTag ("Shot"))
 		{
 			int id = gameObject.GetInstanceID ();
 			if (gameController.IdList.Contains (id))
 				return;
 			gameController.IdList.Add (id);
-
 			ObjectPool.instance.GetGameObject (other.GetComponent <Shot> ().explosion, other.transform.position, Quaternion.identity);
 			ObjectPool.instance.ReleaseGameObject (other.gameObject);
 			rb.constraints = RigidbodyConstraints.None;
 			rb.AddForce (-transform.forward * other.GetComponent <Rigidbody> ().mass + Vector3.up * Random.Range (0.0f, 10.0f), ForceMode.Impulse);
+			Dead ();
+		}
+		//ゾンビ
+		if (other.CompareTag ("Zombei"))
+		{
+			int id = gameObject.GetInstanceID ();
+			if (gameController.IdList.Contains (id))
+				return;
+			gameController.IdList.Add (id);
 			Dead ();
 		}
 	}

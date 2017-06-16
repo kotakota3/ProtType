@@ -14,10 +14,11 @@ public class FollowerMovement : MonoBehaviour
 	Animator anim;
 	Vector3 destination;
 
-	float distance;
+	float distance = 5.0f;
 	bool isArrive = true;
-	bool isDead = false;
 	bool isFight = false;
+
+	public bool isDead{ get; private set; }
 
 	public bool isRescue{ get; set; }
 
@@ -41,7 +42,7 @@ public class FollowerMovement : MonoBehaviour
 
 	void FixedUpdate ()
 	{
-		if (isDead || isFight || playerMovement.isDead)
+		if (isDead || isFight)
 			return;
 		Move ();
 		Turning ();
@@ -75,6 +76,11 @@ public class FollowerMovement : MonoBehaviour
 		}
 	}
 
+	void EndFlagRescue ()
+	{
+		isRescue = false;
+	}
+
 	void Turning ()
 	{
 		if (!isArrive)
@@ -86,11 +92,6 @@ public class FollowerMovement : MonoBehaviour
 			Quaternion newRotation = Quaternion.LookRotation (direction);
 			rb.MoveRotation (newRotation);
 		}
-	}
-
-	void EndFlagRescue ()
-	{
-		isRescue = false;
 	}
 
 	bool Stop ()
@@ -106,14 +107,15 @@ public class FollowerMovement : MonoBehaviour
 			return;
 		isDead = true;
 		FollowerController.s_FollowerCount--;
-		SoundManager.instance.PlayThreeD (deadClip);
+		SoundManager.instance.PlayRandomize (deadClip);
 		playerMovement.RemoveParty (this);
 		followerController.CreateFollower ();
+		Invoke ("RaseZombei", 5.0f);
 	}
 
 	void OnTriggerEnter (Collider other)
 	{
-		if (other.gameObject.CompareTag ("Enemy"))
+		if (other.gameObject.CompareTag ("Shot"))
 		{
 			int id = gameObject.GetInstanceID ();
 			if (gameController.IdList.Contains (id))
@@ -126,16 +128,26 @@ public class FollowerMovement : MonoBehaviour
 				other.GetComponent <Collider> ().enabled = false;
 				other.GetComponent <Rigidbody> ().velocity = Vector3.zero;
 				anim.SetTrigger ("Fight");
-				StartCoroutine (Scapegoat (other, 3.0f));
+				StartCoroutine (Fight (other, 3.0f));
 			}
 			else
 			{
-				StartCoroutine (Scapegoat (other, 0.0f));
+				StartCoroutine (Fight (other, 0.0f));
 			}
+		}
+
+		if (other.CompareTag ("Zombei"))
+		{
+			int id = gameObject.GetInstanceID ();
+			if (gameController.IdList.Contains (id))
+				return;
+			gameController.IdList.Add (id);
+			gameObject.transform.parent = null;
+			Dead ();
 		}
 	}
 
-	IEnumerator Scapegoat (Collider enemy, float fightTime)
+	IEnumerator Fight (Collider enemy, float fightTime)
 	{
 		yield return new WaitForSeconds (fightTime);
 		ObjectPool.instance.GetGameObject (enemy.GetComponent <Shot> ().explosion, enemy.transform.position, Quaternion.identity);
@@ -143,5 +155,13 @@ public class FollowerMovement : MonoBehaviour
 		rb.constraints = RigidbodyConstraints.None;
 		rb.AddForce (-transform.forward * enemy.GetComponent <Rigidbody> ().mass + Vector3.up * Random.Range (0.0f, 10.0f), ForceMode.Impulse);
 		Dead ();
+	}
+
+	void RaseZombei ()
+	{
+		int id = gameObject.GetInstanceID ();
+		gameController.IdList.Remove (id);
+		gameObject.AddComponent <FollowerZombei> ();
+		Destroy (this);
 	}
 }

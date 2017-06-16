@@ -8,31 +8,42 @@ public class GameController : MonoBehaviour
 {
 	public GameObject VirtualPad;
 	public AudioClip gameOver_Clip;
-	public AudioClip goalClip;
+	public AudioClip goal_Clip;
 	public SceneController sceneCtrl;
 	public GraphicRaycaster graphicRaycaster;
 
 	public List<int> IdList = new List<int> ();
 
+	void Update ()
+	{
+		if (Input.GetKey (KeyCode.Escape))
+		{
+			ShutDown ();
+		}
+	}
+
 	public void GameOver ()
 	{
-		Invoke ("DisplayRetryPanel", 3.0f);
+		VirtualPad.SetActive (false);
 		SoundManager.instance.StopBGM ();
+		SoundManager.instance.PlayJingle (gameOver_Clip);
+		Invoke ("DisplayRetryPanel", 3.0f);
 	}
 
 	void DisplayRetryPanel ()
 	{
-		VirtualPad.SetActive (false);
-		SoundManager.instance.PlayJingle (gameOver_Clip);
 		SceneManager.LoadScene ("Stage");
 	}
 
-	//	void Goal ()
-	//	{
-	//		graphicRaycaster.enabled = false;
-	//		VirtualPad.SetActive (false);
-	//		SoundManager.instance.StopBGM ();
-	//		SoundManager.instance.PlayJingle (goalClip);
-	//		sceneCtrl.GoalFade ();
-	//	}
+	public void Goal ()
+	{
+		graphicRaycaster.enabled = false;
+		SoundManager.instance.PlayJingle (goal_Clip);
+		Invoke ("DisplayRetryPanel", 8.0f);
+	}
+
+	public void ShutDown ()
+	{
+		Application.Quit ();
+	}
 }

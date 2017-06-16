@@ -6,8 +6,8 @@ public class Shooter : MonoBehaviour
 	public GameObject shot;
 	public Transform shotPosition;
 	public float attackTimes;
-	public float RapidWait;
 	public float startWait;
+	public float rapidWait;
 	public float endWait;
 	protected IEnumerator routine;
 
@@ -30,15 +30,15 @@ public class Shooter : MonoBehaviour
 
 	protected IEnumerator Fire ()
 	{
-		yield return new WaitForSeconds (startWait);
+		yield return new WaitForSeconds (Random.Range (startWait, startWait * 2.0f));
 		while (Application.isPlaying)
 		{
 			for (int i = 0; i < attackTimes; i++)
 			{
 				ObjectPool.instance.GetGameObject (shot, shotPosition.position, shotPosition.rotation);
-				yield return new WaitForSeconds (RapidWait);
+				yield return new WaitForSeconds (rapidWait);
 			}
-			yield return new WaitForSeconds (endWait);
+			yield return new WaitForSeconds (Random.Range (endWait, endWait * 2.0f));
 		}
 	}
 }

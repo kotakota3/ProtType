@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class FollowerController : MonoBehaviour
 {
-	public static int s_FollowerCount = 100;
+	public static int s_FollowerCount = 20;
 	public GameObject[] followerObjects;
 	public Transform[] followerPositions;
 	public PlayerMovement playerMovement;
@@ -14,6 +14,8 @@ public class FollowerController : MonoBehaviour
 
 	void Start ()
 	{
+		s_FollowerCount = 20;
+
 		oldFollowerCount = s_FollowerCount;
 		PrepareFollower ();
 	}

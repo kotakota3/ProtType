@@ -17,7 +17,7 @@ public class LockOnShooter : Shooter
 		Vector3 direction = player.position - transform.position;
 		transform.rotation = Quaternion.Slerp (
 			transform.rotation,
-			Quaternion.LookRotation (new Vector3 (direction.x, 0, direction.z)),
+			Quaternion.LookRotation (new Vector3 (direction.x, 0.0f, direction.z)),
 			1.0f);
 	}
 

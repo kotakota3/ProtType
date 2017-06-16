@@ -22,19 +22,23 @@ public class Shot : MonoBehaviour
 	{
 		if (gameController == null)
 			gameController = GameObject.FindWithTag ("GameController").GetComponent <GameController> ();
-		
-		rb = GetComponent<Rigidbody> ();
+	}
+
+	void OnEnable ()
+	{
+		if (rb == null)
+			rb = GetComponent<Rigidbody> ();
 		switch (directionMode)
 		{
 			case DirectionMode.Forword:
 				rb.velocity = transform.forward * speed;
 				break;
-//			case DirectionMode.Chase:
-//				player = GameObject.FindWithTag ("Player");
-//				Vector3 distance = player.transform.position - transform.position;
-//				distance.Normalize ();
-//				rb.velocity = distance * speed;
-//				break;
+		//			case DirectionMode.Chase:
+		//				player = GameObject.FindWithTag ("Player");
+		//				Vector3 distance = player.transform.position - transform.position;
+		//				distance.Normalize ();
+		//				rb.velocity = distance * speed;
+		//				break;
 		}
 	}
 }
